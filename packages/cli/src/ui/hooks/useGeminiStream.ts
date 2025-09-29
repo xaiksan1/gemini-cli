@@ -105,6 +105,7 @@ export const useGeminiStream = (
   terminalWidth: number,
   terminalHeight: number,
   isShellFocused?: boolean,
+  commitToMemory?: (prompt: string, response: string) => Promise<void>,
 ) => {
   const [initError, setInitError] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -657,7 +658,7 @@ export const useGeminiStream = (
       stream: AsyncIterable<GeminiEvent>,
       userMessageTimestamp: number,
       signal: AbortSignal,
-    ): Promise<StreamProcessingStatus> => {
+    ): Promise<{ status: StreamProcessingStatus; response: string }> => {
       let geminiMessageBuffer = '';
       const toolCallRequests: ToolCallRequestInfo[] = [];
       for await (const event of stream) {
@@ -718,7 +719,10 @@ export const useGeminiStream = (
       if (toolCallRequests.length > 0) {
         scheduleToolCalls(toolCallRequests, signal);
       }
-      return StreamProcessingStatus.Completed;
+      return {
+        status: StreamProcessingStatus.Completed,
+        response: geminiMessageBuffer,
+      };
     },
     [
       handleContentEvent,
@@ -799,11 +803,21 @@ export const useGeminiStream = (
             abortSignal,
             prompt_id,
           );
-          const processingStatus = await processGeminiStreamEvents(
-            stream,
-            userMessageTimestamp,
-            abortSignal,
-          );
+          const { status: processingStatus, response: responseText } =
+            await processGeminiStreamEvents(
+              stream,
+              userMessageTimestamp,
+              abortSignal,
+            );
+
+          if (
+            processingStatus === StreamProcessingStatus.Completed &&
+            typeof queryToSend === 'string' &&
+            responseText &&
+            commitToMemory
+          ) {
+            void commitToMemory(queryToSend, responseText);
+          }
 
           if (processingStatus === StreamProcessingStatus.UserCancelled) {
             return;
@@ -855,9 +869,9 @@ export const useGeminiStream = (
       startNewPrompt,
       getPromptCount,
       handleLoopDetectedEvent,
+      commitToMemory,
     ],
   );
-
   const handleApprovalModeChange = useCallback(
     async (newApprovalMode: ApprovalMode) => {
       // Auto-approve pending tool calls when switching to auto-approval modes

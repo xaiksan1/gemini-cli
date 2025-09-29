@@ -6,6 +6,7 @@
 
 import { useState, useRef, useCallback } from 'react';
 import type { HistoryItem } from '../types.js';
+import { saveConversationEntry } from '../../context/contextManager.js';
 
 // Type for the updater function passed to updateHistoryItem
 type HistoryItemUpdater = (
@@ -21,6 +22,7 @@ export interface UseHistoryManagerReturn {
   ) => void;
   clearItems: () => void;
   loadHistory: (newHistory: HistoryItem[]) => void;
+  commitToMemory: (prompt: string, response: string) => Promise<void>;
 }
 
 /**
@@ -101,11 +103,20 @@ export function useHistory(): UseHistoryManagerReturn {
     messageIdCounterRef.current = 0;
   }, []);
 
+  // New function to persist a conversation turn to the "living database"
+  const commitToMemory = useCallback(
+    async (prompt: string, response: string) => {
+      await saveConversationEntry(prompt, response);
+    },
+    [],
+  );
+
   return {
     history,
     addItem,
     updateItem,
     clearItems,
     loadHistory,
+    commitToMemory,
   };
 }

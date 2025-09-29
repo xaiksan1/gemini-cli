@@ -5,108 +5,66 @@
  */
 
 import { useState, useCallback } from 'react';
-
-interface Logger {
-  getPreviousUserMessages(): Promise<string[]>;
-}
+import { retrieveInputHistory } from '../../context/contextManager.js';
 
 export interface UseInputHistoryStoreReturn {
   inputHistory: string[];
   addInput: (input: string) => void;
-  initializeFromLogger: (logger: Logger | null) => Promise<void>;
+  initializeHistory: () => Promise<void>;
 }
 
 /**
  * Hook for independently managing input history.
  * Completely separated from chat history and unaffected by /clear commands.
+ * It now uses the central ContextManager to load initial history.
  */
 export function useInputHistoryStore(): UseInputHistoryStoreReturn {
   const [inputHistory, setInputHistory] = useState<string[]>([]);
-  const [_pastSessionMessages, setPastSessionMessages] = useState<string[]>([]);
-  const [_currentSessionMessages, setCurrentSessionMessages] = useState<
-    string[]
-  >([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   /**
-   * Recalculate the complete input history from past and current sessions.
-   * Applies the same deduplication logic as the previous implementation.
-   */
-  const recalculateHistory = useCallback(
-    (currentSession: string[], pastSession: string[]) => {
-      // Combine current session (newest first) + past session (newest first)
-      const combinedMessages = [...currentSession, ...pastSession];
-
-      // Deduplicate consecutive identical messages (same algorithm as before)
-      const deduplicatedMessages: string[] = [];
-      if (combinedMessages.length > 0) {
-        deduplicatedMessages.push(combinedMessages[0]); // Add the newest one unconditionally
-        for (let i = 1; i < combinedMessages.length; i++) {
-          if (combinedMessages[i] !== combinedMessages[i - 1]) {
-            deduplicatedMessages.push(combinedMessages[i]);
-          }
-        }
-      }
-
-      // Reverse to oldest first for useInputHistory
-      setInputHistory(deduplicatedMessages.reverse());
-    },
-    [],
-  );
-
-  /**
-   * Initialize input history from logger with past session data.
+   * Initialize input history from the context manager.
    * Executed only once at app startup.
    */
-  const initializeFromLogger = useCallback(
-    async (logger: Logger | null) => {
-      if (isInitialized || !logger) return;
+  const initializeHistory = useCallback(async () => {
+    if (isInitialized) return;
 
-      try {
-        const pastMessages = (await logger.getPreviousUserMessages()) || [];
-        setPastSessionMessages(pastMessages); // Store as newest first
-        recalculateHistory([], pastMessages);
-        setIsInitialized(true);
-      } catch (error) {
-        // Start with empty history even if logger initialization fails
-        console.warn('Failed to initialize input history from logger:', error);
-        setPastSessionMessages([]);
-        recalculateHistory([], []);
-        setIsInitialized(true);
-      }
-    },
-    [isInitialized, recalculateHistory],
-  );
+    try {
+      // Retrieve history from the new "living database" (via the mock manager)
+      const pastMessages = await retrieveInputHistory(); // Returns newest first
+      // The useInputHistory hook expects oldest first for navigation
+      setInputHistory(pastMessages.reverse());
+      setIsInitialized(true);
+    } catch (error) {
+      console.warn(
+        'Failed to initialize input history from Context Manager:',
+        error,
+      );
+      setInputHistory([]);
+      setIsInitialized(true);
+    }
+  }, [isInitialized]);
 
   /**
-   * Add new input to history.
-   * Recalculates the entire history with deduplication.
+   * Add new input to history for the current session.
+   * This is for immediate feedback (arrow keys). The persistence is handled
+   * by the context manager when the conversation turn is saved.
    */
-  const addInput = useCallback(
-    (input: string) => {
-      const trimmedInput = input.trim();
-      if (!trimmedInput) return; // Filter empty/whitespace-only inputs
+  const addInput = useCallback((input: string) => {
+    const trimmedInput = input.trim();
+    if (!trimmedInput) return;
 
-      setCurrentSessionMessages((prevCurrent) => {
-        const newCurrentSession = [...prevCurrent, trimmedInput];
-
-        setPastSessionMessages((prevPast) => {
-          recalculateHistory(
-            newCurrentSession.slice().reverse(), // Convert to newest first
-            prevPast,
-          );
-          return prevPast; // No change to past messages
-        });
-
-        return newCurrentSession;
-      });
-    },
-    [recalculateHistory],
-  );
+    // Add to the end (making it the most recent), removing previous occurrences.
+    setInputHistory((prevHistory) => {
+      const newHistory = prevHistory.filter((item) => item !== trimmedInput);
+      newHistory.push(trimmedInput);
+      return newHistory;
+    });
+  }, []);
 
   return {
     inputHistory,
     addInput,
-    initializeFromLogger,
+    initializeHistory,
   };
 }

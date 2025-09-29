@@ -21,7 +21,7 @@
     "declaration": true,
     "allowSyntheticDefaultImports": true,
     "verbatimModuleSyntax": true,
-    "lib": ["ES2023"],
+    "lib": ["ES2022"],
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "target": "es2022",

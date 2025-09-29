@@ -47,6 +47,8 @@ import { validateAuthMethod } from '../config/auth.js';
 import { loadHierarchicalGeminiMemory } from '../config/config.js';
 import process from 'node:process';
 import { useHistory } from './hooks/useHistoryManager.js';
+import { useInputHistoryStore } from './hooks/useInputHistoryStore.js';
+
 import { useMemoryMonitor } from './hooks/useMemoryMonitor.js';
 import { useThemeCommand } from './hooks/useThemeCommand.js';
 import { useAuthCommand } from './auth/useAuth.js';
@@ -63,7 +65,7 @@ import { useStdin, useStdout } from 'ink';
 import ansiEscapes from 'ansi-escapes';
 import * as fs from 'node:fs';
 import { useTextBuffer } from './components/shared/text-buffer.js';
-import { useLogger } from './hooks/useLogger.js';
+
 import { useGeminiStream } from './hooks/useGeminiStream.js';
 import { useVim } from './hooks/vim.js';
 import { type LoadedSettings, SettingScope } from '../config/settings.js';
@@ -182,8 +184,11 @@ export const AppContainer = (props: AppContainerProps) => {
 
   const [isConfigInitialized, setConfigInitialized] = useState(false);
 
-  const logger = useLogger(config.storage);
-  const [userMessages, setUserMessages] = useState<string[]>([]);
+  const {
+    inputHistory: userMessages,
+    addInput: addInputToHistory,
+    initializeHistory,
+  } = useInputHistoryStore();
 
   // Terminal and layout hooks
   const { columns: terminalWidth, rows: terminalHeight } = useTerminalSize();
@@ -273,34 +278,8 @@ export const AppContainer = (props: AppContainerProps) => {
   });
 
   useEffect(() => {
-    const fetchUserMessages = async () => {
-      const pastMessagesRaw = (await logger?.getPreviousUserMessages()) || [];
-      const currentSessionUserMessages = historyManager.history
-        .filter(
-          (item): item is HistoryItem & { type: 'user'; text: string } =>
-            item.type === 'user' &&
-            typeof item.text === 'string' &&
-            item.text.trim() !== '',
-        )
-        .map((item) => item.text)
-        .reverse();
-      const combinedMessages = [
-        ...currentSessionUserMessages,
-        ...pastMessagesRaw,
-      ];
-      const deduplicatedMessages: string[] = [];
-      if (combinedMessages.length > 0) {
-        deduplicatedMessages.push(combinedMessages[0]);
-        for (let i = 1; i < combinedMessages.length; i++) {
-          if (combinedMessages[i] !== combinedMessages[i - 1]) {
-            deduplicatedMessages.push(combinedMessages[i]);
-          }
-        }
-      }
-      setUserMessages(deduplicatedMessages.reverse());
-    };
-    fetchUserMessages();
-  }, [historyManager.history, logger]);
+    void initializeHistory();
+  }, [initializeHistory]);
 
   const refreshStatic = useCallback(() => {
     stdout.write(ansiEscapes.clearTerminal);
@@ -579,6 +558,7 @@ Logging in with Google... Please restart Gemini CLI to continue.
     terminalWidth,
     terminalHeight,
     embeddedShellFocused,
+    historyManager.commitToMemory,
   );
 
   // Auto-accept indicator
@@ -628,9 +608,10 @@ Logging in with Google... Please restart Gemini CLI to continue.
 
   const handleFinalSubmit = useCallback(
     (submittedValue: string) => {
+      addInputToHistory(submittedValue);
       addMessage(submittedValue);
     },
-    [addMessage],
+    [addMessage, addInputToHistory],
   );
 
   const handleClearScreen = useCallback(() => {
