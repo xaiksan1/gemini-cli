@@ -19,3 +19,23 @@ exports[`ShellConfirmationDialog > renders correctly 1`] = `
  │                                                                                                  │
  ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
 `;
+
+exports[`ShellConfirmationDialog renders correctly 1`] = `
+" \x1B[97m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[1m\x1B[97mShell Command Execution\x1B[39m\x1B[22m                                                                          \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[97mA custom command wants to run the following shell commands:\x1B[39m                                      \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[34m╭──────────────────────────────────────────────────────────────────────────────────────────────╮\x1B[39m \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[34m│\x1B[39m \x1B[97mls -la\x1B[39m                                                                                       \x1B[34m│\x1B[39m \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[34m│\x1B[39m \x1B[97mecho "hello"\x1B[39m                                                                                 \x1B[34m│\x1B[39m \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[34m╰──────────────────────────────────────────────────────────────────────────────────────────────╯\x1B[39m \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[97mDo you want to proceed?\x1B[39m                                                                          \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[37m●\x1B[39m \x1B[37m1.\x1B[39m \x1B[37mYes, allow once\x1B[39m                                                                             \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[97m \x1B[39m \x1B[97m2.\x1B[39m \x1B[97mYes, allow always for this session\x1B[39m                                                          \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[97m \x1B[39m \x1B[97m3.\x1B[39m \x1B[97mNo (esc)\x1B[39m                                                                                    \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\x1B[39m"
+`;

@@ -11,3 +11,15 @@ exports[`LoopDetectionConfirmation > renders correctly 1`] = `
  │   2. Disable loop detection for this session                                                     │
  ╰──────────────────────────────────────────────────────────────────────────────────────────────────╯"
 `;
+
+exports[`LoopDetectionConfirmation renders correctly 1`] = `
+" \x1B[97m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[97m?\x1B[39m  \x1B[1m\x1B[97mA potential loop was detected\x1B[39m\x1B[22m                                                                 \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[34mThis can happen due to repetitive tool calls or other model behavior. Do you want to keep loop \x1B[39m  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[34mdetection enabled or disable it for this session?\x1B[39m                                                \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m                                                                                                  \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[37m●\x1B[39m \x1B[37m1.\x1B[39m \x1B[37mKeep loop detection enabled (esc)\x1B[39m                                                           \x1B[97m│\x1B[39m
+ \x1B[97m│\x1B[39m \x1B[97m \x1B[39m \x1B[97m2.\x1B[39m \x1B[97mDisable loop detection for this session\x1B[39m                                                     \x1B[97m│\x1B[39m
+ \x1B[97m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\x1B[39m"
+`;

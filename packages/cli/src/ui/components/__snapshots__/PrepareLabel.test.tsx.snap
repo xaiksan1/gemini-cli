@@ -23,3 +23,27 @@ exports[`PrepareLabel > truncates match itself when match is very long 1`] = `
 "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
 `;
+
+exports[`PrepareLabel renders plain label when no match (short label) 1`] = `"\x1B[37msimple command\x1B[39m"`;
+
+exports[`PrepareLabel highlights matched substring when expanded (text only visible) 1`] = `"\x1B[37mrun: git \x1B[107m\x1B[30mcommit\x1B[49m\x1B[37m -m "feat: add search"\x1B[39m"`;
+
+exports[`PrepareLabel truncates long label when collapsed and no match 1`] = `
+"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
+`;
+
+exports[`PrepareLabel shows full long label when expanded and no match 1`] = `
+"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
+`;
+
+exports[`PrepareLabel creates centered window around match when collapsed 1`] = `
+"...ry/long/path/that/keeps/going/cd /very/long/path/that/keeps/going/search-here/and/then/some/more/
+components//and/then/some/more/components//and/..."
+`;
+
+exports[`PrepareLabel truncates match itself when match is very long 1`] = `
+"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx..."
+`;
