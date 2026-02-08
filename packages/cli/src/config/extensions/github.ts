@@ -272,8 +272,24 @@ export async function downloadFromGitHubRelease(
     await downloadFile(archiveUrl, downloadedAssetPath);
 
     extractFile(downloadedAssetPath, destination);
-
     await fs.promises.unlink(downloadedAssetPath);
+
+    // Flatten if archives contain a single top-level directory.
+    const files = await fs.promises.readdir(destination);
+    if (files.length === 1) {
+      const topLevelEntry = path.join(destination, files[0]);
+      if ((await fs.promises.stat(topLevelEntry)).isDirectory()) {
+        const subEntries = await fs.promises.readdir(topLevelEntry);
+        for (const entry of subEntries) {
+          await fs.promises.rename(
+            path.join(topLevelEntry, entry),
+            path.join(destination, entry),
+          );
+        }
+        await fs.promises.rmdir(topLevelEntry);
+      }
+    }
+
     return {
       tagName: releaseData.tag_name,
       type: 'github-release',

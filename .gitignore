@@ -53,3 +53,13 @@ gha-creds-*.json
 
 # Log files
 patch_output.log
+
+# Ignore embedded repositories added by Gemini
+A2A/
+DeepCode/
+activepieces/
+appkit/
+bytebot/
+mgrep/
+vertex-ai-creative-studio/
+
